@@ -15,6 +15,7 @@ func getData(urlRequest: String) {
             let statusCode = response.statusCode
             switch statusCode {
             case 200:
+                print("Код ответа с сервера:", statusCode)
                 if let data = data, let dataAsString = String(data: data, encoding: .utf8) {
                     print("Данные, пришедшие с сервера:\n", dataAsString)
                 }

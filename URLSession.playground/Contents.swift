@@ -1,7 +1,36 @@
 import Foundation
+import CryptoKit
 
-func getData(urlRequest: String) {
-    let urlRequest = URL(string: urlRequest)
+let publicKey = "ab05bf3b748bba6fd68381c72d29f4d2"
+let privateKey = "c0607a3b51d9e0478c798a2cac8d67d00e019d00"
+
+//  Метод MD5-hash
+func MD5(string: String) -> String {
+    let digest = Insecure.MD5.hash(data: Data(string.utf8))
+
+    return digest.map {
+        String(format: "%02hhx", $0)
+    }.joined()
+}
+
+// Получение URL
+func creatingMarvelURL() -> URL? {
+    let baseURL = "https://gateway.marvel.com/v1/public/characters"
+    let ts = "\(Date().timeIntervalSince1970)"
+    let hash = MD5(string: "\(ts)\(privateKey)\(publicKey)")
+    
+    var urlComponents = URLComponents(string: baseURL)
+    
+    var queryItems = [URLQueryItem(name: "apikey", value: publicKey),
+                      URLQueryItem(name: "ts", value: ts),
+                      URLQueryItem(name: "hash", value: hash)]
+    
+    urlComponents?.queryItems = queryItems
+    
+    return urlComponents?.url
+}
+
+func getData(urlRequest: URL?) {
     
     guard let url = urlRequest else { return }
     URLSession.shared.dataTask(with: url) { data, response, error in
@@ -30,6 +59,7 @@ func getData(urlRequest: String) {
     }.resume()
 }
 
-getData(urlRequest: "https://api.spacexdata.com/v5/launches/latest")
+let marvilURL = creatingMarvelURL()
+getData(urlRequest: marvilURL)
 
 
